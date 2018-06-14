@@ -6,7 +6,7 @@
     var chapter = "";
     var verse = "";
     var note = "";
-    var dateSubmitted = "";
+    var dateSubmitted ="";
     var scriptureId = "";
 
     if (!IsPost)
@@ -52,15 +52,15 @@
         note = Request.Form["note"];
         scriptureId = Request.Form["ScriptureId"];
 
-        var chapterReal = Convert.ToInt16(chapter);
-        var verseReal = Convert.ToInt16(verse);
+        //var chapterReal = Convert.ToInt16(chapter);
+        //var verseReal = Convert.ToInt16(verse);
 
 
         if (Validation.IsValid())
         {
             var db = Database.Open("MyScriptureJournal");
-            var updateCommand = "UPDATE Scriptures SET Book=@0, Chapter=@1, Verse=@2 Note=@3 WHERE Id=@4";
-            db.Execute(updateCommand, book, chapterReal, verse, note, scriptureId);
+            var updateCommand = "UPDATE Scriptures SET Book=@0, Chapter=@1, Verse=@2, Note=@3 WHERE Id=@4";
+            db.Execute(updateCommand, book, chapter, verse, note, scriptureId);
             Response.Redirect("~/Scriptures");
         }
     }
