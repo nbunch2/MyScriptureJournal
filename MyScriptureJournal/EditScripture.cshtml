@@ -1,0 +1,117 @@
+﻿@{
+    Layout = "~/_Layout.cshtml";
+    Page.Title = "Update a Scripture";
+
+    var book = "";
+    var chapter = "";
+    var verse = "";
+    var note = "";
+    var dateSubmitted = "";
+    var scriptureId = "";
+
+    if (!IsPost)
+    {
+        if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].IsInt())
+        {
+            scriptureId = Request.QueryString["ID"];
+            var db = Database.Open("MyScriptureJournal");
+            var dbCommand = "SELECT * FROM Scriptures WHERE ID = @0";
+            var row = db.QuerySingle(dbCommand, scriptureId);
+
+            if (row != null)
+            {
+                book = row.Book;
+                chapter = row.Chapter.ToString();
+                verse = row.Verse.ToString();
+                note = row.Note;
+                dateSubmitted = row.Date.ToString();
+
+            }
+            else
+            {
+                Validation.AddFormError("No Scripture was selected.");
+            }
+        }
+        else
+        {
+            Validation.AddFormError("No scripture was selected.");
+        }
+    }
+
+    if (IsPost)
+    {
+        Validation.RequireField("book", "You must enter a book");
+        Validation.RequireField("chapter", "You Must Select a Chapter");
+        Validation.RequireField("verse", "You haven't entered a verse");
+        Validation.RequireField("note", "Please Make a Note about this Scripture, Even if it's just a keyword.");
+        Validation.RequireField("scriptureId", "No scripture ID was submitted!");
+
+        book = Request.Form["book"];
+        chapter = Request.Form["chapter"];
+        verse = Request.Form["verse"];
+        note = Request.Form["note"];
+        scriptureId = Request.Form["ScriptureId"];
+
+        var chapterReal = Convert.ToInt16(chapter);
+        var verseReal = Convert.ToInt16(verse);
+
+
+        if (Validation.IsValid())
+        {
+            var db = Database.Open("MyScriptureJournal");
+            var updateCommand = "UPDATE Scriptures SET Book=@0, Chapter=@1, Verse=@2 Note=@3 WHERE Id=@4";
+            db.Execute(updateCommand, book, chapterReal, verse, note, scriptureId);
+            Response.Redirect("~/Scriptures");
+        }
+    }
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Edit Your Scripture or Notes</title>
+    <style>
+        .validation-summary-errors {
+            border: 2px dashed red;
+            color: red;
+            font-weight: bold;
+            margin: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Edit your notes</h2>
+    @Html.ValidationSummary()
+    <form method="post">
+        <fieldset>
+            <legend>Scripture Information</legend>
+
+            <p>
+                <label for="book">Book:</label>
+                <input type="text" name="book" value="@book" />
+            </p>
+
+            <p>
+                <label for="chapter">Chapter:</label>
+                <input type="text" name="chapter" value="@chapter" />
+            </p>
+
+            <p>
+                <label for="verse">Verse:</label>
+                <input type="text" name="verse" value="@verse" />
+            </p>
+
+            <p>
+                <label for="note">Notes:</label>
+                <input type="text" name="note" value="@note" />
+            </p>
+
+            <input type="hidden" name="scriptureId" value="@scriptureId" />
+
+            <p><input type="submit" name="buttonSubmit" value="Submit Changes" /></p>
+        </fieldset>
+    </form>
+    <p><a href="~/Scriptures">Return to my journal</a></p>
+</body>
+</html>
